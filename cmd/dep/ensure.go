@@ -305,7 +305,9 @@ func getProjectConstraint(arg string, sm gps.SourceManager) (gps.ProjectConstrai
 
 func checkErrors(m map[string]pkgtree.PackageOrErr) error {
 	noGoErrors, pkgErrors := 0, 0
-	for _, poe := range m {
+	var errString string
+
+	for k, poe := range m {
 		if poe.Err != nil {
 			switch poe.Err.(type) {
 			case *build.NoGoError:
@@ -313,18 +315,21 @@ func checkErrors(m map[string]pkgtree.PackageOrErr) error {
 			default:
 				pkgErrors++
 			}
+
+			errString += fmt.Sprintf("%s: %v\n", k, poe.Err)
 		}
 	}
+
 	if len(m) == 0 || len(m) == noGoErrors {
-		return errors.New("all dirs lacked any go code")
+		return errors.Errorf("%d dirs lacked any go code: \n"+errString, noGoErrors)
 	}
 
 	if len(m) == pkgErrors {
-		return errors.New("all dirs had go code with errors")
+		return errors.Errorf("%d dirs had go code with errors: \n"+errString, pkgErrors)
 	}
 
 	if len(m) == pkgErrors+noGoErrors {
-		return errors.Errorf("%d dirs had errors and %d had no go code", pkgErrors, noGoErrors)
+		return errors.Errorf("%d dirs had errors and %d had no go code \n%s", pkgErrors, noGoErrors, errString)
 	}
 
 	return nil
