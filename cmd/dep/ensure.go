@@ -321,15 +321,15 @@ func checkErrors(m map[string]pkgtree.PackageOrErr) error {
 	}
 
 	if len(m) == 0 || len(m) == noGoErrors {
-		return errors.Errorf("%d dirs lacked any go code: \n"+errString, noGoErrors)
+		return errors.Errorf("%d dirs lacked any go code:\n %s", noGoErrors, errString)
 	}
 
 	if len(m) == pkgErrors {
-		return errors.Errorf("%d dirs had go code with errors: \n"+errString, pkgErrors)
+		return errors.Errorf("%d dirs had go code with errors:\n %s", pkgErrors, errString)
 	}
 
 	if len(m) == pkgErrors+noGoErrors {
-		return errors.Errorf("%d dirs had errors and %d had no go code \n%s", pkgErrors, noGoErrors, errString)
+		return errors.Errorf("%d dirs had errors and %d had no go code:\n %s", pkgErrors, noGoErrors, errString)
 	}
 
 	return nil
